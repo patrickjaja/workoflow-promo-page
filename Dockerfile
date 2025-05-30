@@ -21,17 +21,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy composer files
-COPY composer.json composer.lock ./
+# Copy application files first
+COPY . .
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
-
-# Copy application files
-COPY . .
-
-# Install and build frontend assets
-RUN npm install && npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /app
