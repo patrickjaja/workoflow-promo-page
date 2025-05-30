@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Workoflow - EU GDPR Teams AI Integration Platform{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    {% block stylesheets %}
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    {% endblock %}
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ path('index') }}" class="flex items-center space-x-2">
+                        <img src="{{ asset('images/logo-32.png') }}" alt="Workoflow Logo" class="w-8 h-8">
+                        <span class="text-xl font-bold text-gray-900">Workoflow</span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if app.user %}
+                        <div class="flex items-center space-x-4">
+                            {% if app.user.avatar %}
+                                <img src="{{ app.user.avatar }}" alt="{{ app.user.name }}" class="w-8 h-8 rounded-full">
+                            {% endif %}
+                            <span class="text-gray-700">{{ app.user.name }}</span>
+                            {% if app.user.subscriptionPlan %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                    {% if app.user.subscriptionPlan == 'free' %}bg-gray-100 text-gray-800{% endif %}
+                                    {% if app.user.subscriptionPlan == 'pro' %}bg-blue-100 text-blue-800{% endif %}
+                                    {% if app.user.subscriptionPlan == 'enterprise' %}bg-purple-100 text-purple-800{% endif %}">
+                                    {{ app.user.subscriptionPlan|upper }}
+                                </span>
+                            {% endif %}
+                            <a href="{{ path('app_logout') }}" class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="{{ path('connect_google_start') }}" 
+                           class="btn-valantic px-4 py-2 rounded-lg transition duration-200">
+                            <i class="fab fa-google mr-2"></i>
+                            Sign in with Google
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% for message in app.flashes('success') %}
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('warning') %}
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('info') %}
+            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endfor %}
+
+        {% block body %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-900 text-white py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <img src="{{ asset('images/logo-32.png') }}" alt="Workoflow Logo" class="w-8 h-8">
+                        <span class="text-xl font-bold">Workoflow</span>
+                    </div>
+                    <p class="text-gray-400">EU GDPR-compliant Teams AI integration platform powered by n8n automation.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Product</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#features" class="hover:text-white">Features</a></li>
+                        <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="https://github.com/patrickjaja/workoflow-bot" target="_blank" class="hover:text-white">Teams Bot</a></li>
+                        <li><a href="https://github.com/patrickjaja/workoflow-hosting" target="_blank" class="hover:text-white">Hosting</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Support</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                        <li><a href="#" class="hover:text-white">Status</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Workoflow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block javascripts %}
+        <script src="{{ asset('js/app.js') }}"></script>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,331 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                EU GDPR-Compliant
+                <span style="color: var(--valantic-orange);">Teams AI Integration</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
+                Connect your internal company data with Microsoft Teams through intelligent AI agents. 
+                Powered by n8n automation in a fully GDPR-compliant environment hosted by <span style="color: var(--valantic-orange);">Valantic</span>.
+            </p>
+            {% if not app.user %}
+                <div class="space-x-4">
+                    <a href="{{ path('connect_google_start') }}" 
+                       class="btn-valantic px-8 py-4 rounded-lg text-lg font-semibold transition duration-200 inline-block">
+                        <i class="fab fa-google mr-2"></i>
+                        Get Started Free
+                    </a>
+                    <a href="#pricing" 
+                       class="bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition duration-200 inline-block">
+                        View Pricing
+                    </a>
+                </div>
+            {% else %}
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-md mx-auto">
+                    <h3 class="text-2xl font-semibold mb-4">Welcome back, {{ app.user.name }}!</h3>
+                    {% if app.user.subscriptionPlan %}
+                        <p class="text-gray-300 mb-4">You're currently on the <strong style="color: var(--valantic-orange);">{{ app.user.subscriptionPlan|upper }}</strong> plan.</p>
+                        {% if app.user.subscriptionPlan != 'pro' %}
+                            <a href="{{ path('subscribe', {plan: 'pro'}) }}" 
+                               class="btn-valantic px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                                Upgrade to Pro
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-gray-300 mb-4">Ready to choose your plan?</p>
+                        <a href="#pricing" 
+                           class="btn-valantic px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                            Choose Your Plan
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div id="features" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Enterprise-Ready <span style="color: var(--valantic-orange);">Teams AI</span> Integration
+            </h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Deploy custom Teams bots that connect your internal tools and data through intelligent AI agents, 
+                all within EU GDPR compliance standards.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center p-8 rounded-xl bg-gray-50 hover:bg-gray-100 transition duration-200">
+                <div class="w-16 h-16 icon-valantic rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fab fa-microsoft text-2xl" style="color: var(--valantic-orange);"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Teams Bot Integration</h3>
+                <p class="text-gray-600">
+                    Deploy custom Teams bots directly in your tenant. Each employee gets a personal AI agent for intelligent automation.
+                </p>
+            </div>
+
+            <div class="text-center p-8 rounded-xl bg-gray-50 hover:bg-gray-100 transition duration-200">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-robot text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">n8n Low-Code Automation</h3>
+                <p class="text-gray-600">
+                    Connect internal company data through powerful n8n workflows. Ask "Who worked on Project X?" or "Create a Jira ticket" via Teams.
+                </p>
+            </div>
+
+            <div class="text-center p-8 rounded-xl bg-gray-50 hover:bg-gray-100 transition duration-200">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-database text-purple-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Internal Data Access</h3>
+                <p class="text-gray-600">
+                    Securely connect all your internal tools and data sources. Employees can query company information through natural conversation.
+                </p>
+            </div>
+
+            <div class="text-center p-8 rounded-xl bg-gray-50 hover:bg-gray-100 transition duration-200">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-shield-alt text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">EU GDPR Compliance</h3>
+                <p class="text-gray-600">
+                    Full European data protection compliance. Your data stays in EU, with enterprise-grade security and privacy controls.
+                </p>
+            </div>
+
+            <div class="text-center p-8 rounded-xl bg-gray-50 hover:bg-gray-100 transition duration-200">
+                <div class="w-16 h-16 icon-valantic rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-cloud text-2xl" style="color: var(--valantic-orange);"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Valantic Hosting</h3>
+                <p class="text-gray-600">
+                    Enterprise hosting, scaling, and availability managed by Valantic. Focus on your business while we handle the infrastructure.
+                </p>
+            </div>
+
+            <div class="text-center p-8 rounded-xl bg-gray-50 hover:bg-gray-100 transition duration-200">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-cogs text-indigo-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Custom Automations</h3>
+                <p class="text-gray-600">
+                    Enterprise plan includes custom n8n automation development. We build the workflows your business needs.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pricing Section -->
+<div id="pricing" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                GDPR-Compliant <span style="color: var(--valantic-orange);">Teams AI</span> Integration Plans
+            </h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                From proof-of-concept to enterprise deployment. All plans include EU hosting and GDPR compliance by Valantic.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <!-- Free Plan -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 hover:border-gray-300 transition duration-200">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Proof of Concept</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900">€0</span>
+                        <span class="text-gray-600">/month</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-gray-600">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Teams bot demo setup
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Basic n8n workflow
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            EU GDPR compliance
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Email consultation
+                        </li>
+                    </ul>
+                    {% if app.user %}
+                        {% if app.user.subscriptionPlan == 'free' %}
+                            <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                                Current Plan
+                            </button>
+                        {% else %}
+                            <a href="{{ path('subscribe', {plan: 'free'}) }}" 
+                               class="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
+                                Start Proof of Concept
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ path('connect_google_start') }}" 
+                           class="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
+                            Start Demo
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 transition duration-200 relative card-valantic">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span class="text-white px-4 py-1 rounded-full text-sm font-semibold" style="background: var(--valantic-orange);">Most Popular</span>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Production</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900">€10</span>
+                        <span class="text-gray-600">/month</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-gray-600">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Full Teams bot deployment
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Complete n8n hosting
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Internal data connections
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Valantic infrastructure
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Standard support
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            GDPR compliance monitoring
+                        </li>
+                    </ul>
+                    {% if app.user %}
+                        {% if app.user.subscriptionPlan == 'pro' %}
+                            <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                                Current Plan
+                            </button>
+                        {% else %}
+                            <a href="{{ path('subscribe', {plan: 'pro'}) }}" 
+                               class="w-full btn-valantic py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
+                                Deploy Production
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ path('connect_google_start') }}" 
+                           class="w-full btn-valantic py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
+                            Deploy Production
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 hover:border-gray-300 transition duration-200">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Enterprise</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900">Custom</span>
+                        <span class="text-gray-600">/month</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-gray-600">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Everything in Production
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Custom n8n development
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            24/7 Valantic support
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Advanced integrations
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Dedicated infrastructure
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            Account manager
+                        </li>
+                    </ul>
+                    {% if app.user %}
+                        {% if app.user.subscriptionPlan == 'enterprise' %}
+                            <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                                Current Plan
+                            </button>
+                        {% else %}
+                            <a href="{{ path('subscribe', {plan: 'enterprise'}) }}" 
+                               class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
+                                Contact Sales
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ path('connect_google_start') }}" 
+                           class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
+                            Contact Sales
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="py-20 bg-gray-100">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            Ready to deploy GDPR-compliant Teams AI?
+        </h2>
+        <p class="text-xl text-gray-600 mb-8">
+            Transform your Microsoft Teams with intelligent automation. Connect internal data, create workflows, and stay GDPR compliant with <span style="color: var(--valantic-orange);">Valantic</span> hosting.
+        </p>
+        {% if not app.user %}
+            <a href="{{ path('connect_google_start') }}" 
+               class="btn-valantic px-8 py-4 rounded-lg text-lg font-semibold transition duration-200 inline-block">
+                <i class="fab fa-google mr-2"></i>
+                Start Your Demo
+            </a>
+        {% else %}
+            {% if not app.user.subscriptionPlan %}
+                <a href="#pricing" 
+                   class="btn-valantic px-8 py-4 rounded-lg text-lg font-semibold transition duration-200 inline-block">
+                    Choose Your Plan
+                </a>
+            {% else %}
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-md mx-auto">
+                    <p class="text-white text-lg">Thanks for being part of the Workoflow family!</p>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

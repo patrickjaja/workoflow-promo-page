@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Dotenv\Dotenv;
+
+if (!is_dir(dirname(__DIR__).'/vendor')) {
+    throw new LogicException('Dependencies are missing. Try running "composer install".');
+}
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
+    throw new LogicException('Dependencies are missing. Try running "composer install".');
+}
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+if (!class_exists(Application::class) || !class_exists(Dotenv::class)) {
+    throw new LogicException('You need to add "symfony/framework-bundle" and "symfony/dotenv" as Composer dependencies.');
+}
+
+if (is_file(dirname(__DIR__).'/.env')) {
+    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+}
+
+if ($_SERVER['APP_DEBUG']) {
+    umask(0000);
+}
+
+$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+$application = new Application($kernel);
+$application->run();

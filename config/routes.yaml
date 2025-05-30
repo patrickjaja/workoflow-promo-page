@@ -1,0 +1,35 @@
+index:
+    path: /
+    controller: App\Controller\DefaultController::index
+
+connect_google_start:
+    path: /connect/google
+    controller: App\Controller\AuthController::connectAction
+
+connect_google_check:
+    path: /connect/google/check
+    controller: App\Controller\AuthController::connectCheckAction
+
+app_logout:
+    path: /logout
+    methods: GET
+
+subscribe:
+    path: /subscribe/{plan}
+    controller: App\Controller\SubscriptionController::subscribe
+    requirements:
+        plan: free|pro|enterprise
+
+payment_create:
+    path: /payment/create/{plan}
+    controller: App\Controller\PaymentController::create
+    requirements:
+        plan: pro
+
+payment_success:
+    path: /payment/success
+    controller: App\Controller\PaymentController::success
+
+payment_cancel:
+    path: /payment/cancel
+    controller: App\Controller\PaymentController::cancel
