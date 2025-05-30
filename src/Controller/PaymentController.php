@@ -44,7 +44,7 @@ class PaymentController extends AbstractController
                             'name' => 'Workoflow Pro Subscription',
                             'description' => 'Monthly subscription to Workoflow Pro',
                         ],
-                        'unit_amount' => 1000, // 10€ in cents
+                        'unit_amount' => 10000, // 100€ in cents
                     ],
                     'quantity' => 1,
                 ]],
@@ -73,7 +73,7 @@ class PaymentController extends AbstractController
             $subscription = new Subscription();
             $subscription->setUser($user);
             $subscription->setPlan('pro');
-            $subscription->setAmount('10.00');
+            $subscription->setAmount('100.00');
             $subscription->setCurrency('EUR');
             $subscription->setStatus('active');
             $subscription->setExpiresAt((new \DateTime())->add(new \DateInterval('P1M')));
