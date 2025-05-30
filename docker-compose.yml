@@ -1,6 +1,6 @@
 services:
   frankenphp:
-    image: dunglas/frankenphp:php8.3
+    build: .
     restart: unless-stopped
     command: frankenphp run --config /etc/caddy/Caddyfile --watch
     ports:
