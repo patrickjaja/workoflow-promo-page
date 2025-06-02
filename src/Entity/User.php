@@ -44,6 +44,15 @@ class User implements UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $stripeCustomerId = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $teamsAccountName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $organizationName = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $isOrganizationAdmin = true;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -165,9 +174,42 @@ class User implements UserInterface
         return $this;
     }
 
+    public function getTeamsAccountName(): ?string
+    {
+        return $this->teamsAccountName;
+    }
+
+    public function setTeamsAccountName(?string $teamsAccountName): static
+    {
+        $this->teamsAccountName = $teamsAccountName;
+        return $this;
+    }
+
     public function hasActiveSubscription(): bool
     {
         return $this->subscriptionPlan && 
                ($this->subscriptionExpiresAt === null || $this->subscriptionExpiresAt > new \DateTime());
+    }
+
+    public function getOrganizationName(): ?string
+    {
+        return $this->organizationName;
+    }
+
+    public function setOrganizationName(?string $organizationName): static
+    {
+        $this->organizationName = $organizationName;
+        return $this;
+    }
+
+    public function isOrganizationAdmin(): bool
+    {
+        return $this->isOrganizationAdmin;
+    }
+
+    public function setIsOrganizationAdmin(bool $isOrganizationAdmin): static
+    {
+        $this->isOrganizationAdmin = $isOrganizationAdmin;
+        return $this;
     }
 }

@@ -2,6 +2,10 @@ index:
     path: /
     controller: App\Controller\DefaultController::index
 
+proxy_avatar:
+    path: /proxy/avatar/{encodedUrl}
+    controller: App\Controller\DefaultController::proxyAvatar
+
 connect_google_start:
     path: /connect/google
     controller: App\Controller\AuthController::connectAction
@@ -33,3 +37,118 @@ payment_success:
 payment_cancel:
     path: /payment/cancel
     controller: App\Controller\PaymentController::cancel
+
+account_settings:
+    path: /account/settings
+    controller: App\Controller\AccountSettingsController::settings
+
+account_settings_update:
+    path: /account/settings/update
+    controller: App\Controller\AccountSettingsController::updateSettings
+    methods: [POST]
+
+account_token_update:
+    path: /account/settings/token/{service}
+    controller: App\Controller\AccountSettingsController::updateToken
+    methods: [POST]
+
+account_token_delete:
+    path: /account/settings/token/{service}/delete
+    controller: App\Controller\AccountSettingsController::deleteToken
+    methods: [POST]
+
+enterprise_contact:
+    path: /enterprise/contact
+    controller: App\Controller\EnterpriseController::contact
+    methods: [GET]
+
+enterprise_contact_submit:
+    path: /enterprise/contact/submit
+    controller: App\Controller\EnterpriseController::submitContact
+    methods: [POST]
+
+account_profile:
+    path: /account/profile
+    controller: App\Controller\AccountSettingsController::profile
+    methods: [GET]
+
+account_profile_update:
+    path: /account/profile/update
+    controller: App\Controller\AccountSettingsController::updateProfile
+    methods: [POST]
+
+account_members:
+    path: /account/members
+    controller: App\Controller\MembersController::index
+    methods: [GET]
+
+account_member_invite:
+    path: /account/members/invite
+    controller: App\Controller\MembersController::invite
+    methods: [POST]
+
+account_member_resend_invite:
+    path: /account/members/{id}/resend-invite
+    controller: App\Controller\MembersController::resendInvite
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+account_member_cancel_invite:
+    path: /account/members/{id}/cancel-invite
+    controller: App\Controller\MembersController::cancelInvite
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+account_member_deactivate:
+    path: /account/members/{id}/deactivate
+    controller: App\Controller\MembersController::deactivate
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+member_accept_invitation:
+    path: /invite/{token}
+    controller: App\Controller\MembersController::acceptInvitation
+    methods: [GET]
+
+account_billing:
+    path: /account/billing
+    controller: App\Controller\BillingController::billing
+    methods: [GET]
+
+billing_portal:
+    path: /account/billing/portal
+    controller: App\Controller\BillingController::billingPortal
+    methods: [GET]
+
+cancel_subscription:
+    path: /account/billing/cancel
+    controller: App\Controller\BillingController::cancelSubscription
+    methods: [POST]
+
+invoice_download:
+    path: /invoice/{stripeInvoiceId}/download
+    controller: App\Controller\PaymentController::downloadInvoice
+    methods: [GET]
+
+stripe_webhook:
+    path: /webhook/stripe
+    controller: App\Controller\PaymentController::stripeWebhook
+    methods: [POST]
+
+account_n8n:
+    path: /account/n8n
+    controller: App\Controller\N8nController::index
+    methods: [GET]
+
+account_n8n_update_variable:
+    path: /account/n8n/variable/{variableName}/update
+    controller: App\Controller\N8nController::updateVariable
+    methods: [POST]
+
+account_n8n_reset_variable:
+    path: /account/n8n/variable/{variableName}/reset
+    controller: App\Controller\N8nController::resetVariable
+    methods: [GET]

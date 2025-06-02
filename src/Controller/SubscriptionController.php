@@ -28,6 +28,11 @@ class SubscriptionController extends AbstractController
         }
 
         $user = $this->getUser();
+        
+        if (!$user->isOrganizationAdmin()) {
+            $this->addFlash('error', 'Access denied. Only organization administrators can manage subscriptions.');
+            return $this->redirectToRoute('account_profile');
+        }
 
         switch ($plan) {
             case 'free':
@@ -86,7 +91,6 @@ GitHub repos:
 
     private function handleEnterpriseSubscription($user): Response
     {
-        $this->addFlash('info', 'Please contact our sales team for enterprise pricing.');
-        return $this->redirectToRoute('index');
+        return $this->redirectToRoute('enterprise_contact');
     }
 }

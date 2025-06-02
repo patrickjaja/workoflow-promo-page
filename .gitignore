@@ -48,3 +48,5 @@ composer.phar
 
 # Environment files
 .env
+
+.mcp.json

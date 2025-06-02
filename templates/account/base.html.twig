@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:w-64">
+                <div class="bg-white shadow rounded-lg p-6">
+                    <div class="flex items-center space-x-3 mb-6">
+                        {% if app.user.avatar %}
+                            <img src="{{ proxy_avatar_url(app.user.avatar) }}" alt="{{ app.user.name }}" class="w-12 h-12 rounded-full">
+                        {% else %}
+                            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-gray-600"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">{{ app.user.name }}</h3>
+                            <p class="text-sm text-gray-500">{{ app.user.email }}</p>
+                        </div>
+                    </div>
+
+                    <nav class="space-y-2">
+                        <a href="{{ path('account_profile') }}" 
+                           class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                  {% if app.request.get('_route') == 'account_profile' %}
+                                      bg-purple-100 text-purple-700
+                                  {% else %}
+                                      text-gray-700 hover:bg-gray-100
+                                  {% endif %}">
+                            <i class="fas fa-user w-5"></i>
+                            <span>Profile</span>
+                        </a>
+
+                        {% if app.user.isOrganizationAdmin %}
+                            <a href="{{ path('account_billing') }}" 
+                               class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                      {% if app.request.get('_route') starts with 'account_billing' %}
+                                          bg-purple-100 text-purple-700
+                                      {% else %}
+                                          text-gray-700 hover:bg-gray-100
+                                      {% endif %}">
+                                <i class="fas fa-credit-card w-5"></i>
+                                <span>Billing</span>
+                            </a>
+                        {% endif %}
+
+                        <a href="{{ path('account_settings') }}" 
+                           class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                  {% if app.request.get('_route') == 'account_settings' %}
+                                      bg-purple-100 text-purple-700
+                                  {% else %}
+                                      text-gray-700 hover:bg-gray-100
+                                  {% endif %}">
+                            <i class="fas fa-cog w-5"></i>
+                            <span>Service Integrations</span>
+                        </a>
+
+                        <a href="{{ path('account_n8n') }}" 
+                           class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                  {% if app.request.get('_route') starts with 'account_n8n' %}
+                                      bg-purple-100 text-purple-700
+                                  {% else %}
+                                      text-gray-700 hover:bg-gray-100
+                                  {% endif %}">
+                            <i class="fas fa-project-diagram w-5"></i>
+                            <span>N8N Teams Integration</span>
+                        </a>
+
+                        {% if app.user.isOrganizationAdmin %}
+                            <a href="{{ path('account_members') }}" 
+                               class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                      {% if app.request.get('_route') starts with 'account_members' %}
+                                          bg-purple-100 text-purple-700
+                                      {% else %}
+                                          text-gray-700 hover:bg-gray-100
+                                      {% endif %}">
+                                <i class="fas fa-users w-5"></i>
+                                <span>Manage Members</span>
+                            </a>
+                        {% endif %}
+
+                        <div class="border-t border-gray-200 pt-2 mt-4">
+                            <a href="{{ path('index') }}" 
+                               class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-arrow-left w-5"></i>
+                                <span>Back to Dashboard</span>
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+
+                {% if app.user.organizationName %}
+                    <div class="mt-6 bg-white shadow rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Organization</h4>
+                        <p class="text-sm text-gray-600">{{ app.user.organizationName }}</p>
+                        {% if app.user.isOrganizationAdmin %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-2">
+                                Admin
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mt-2">
+                                Member
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1">
+                {% block account_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

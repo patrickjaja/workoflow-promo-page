@@ -27,7 +27,7 @@
                     {% if app.user %}
                         <div class="flex items-center space-x-4">
                             {% if app.user.avatar %}
-                                <img src="{{ app.user.avatar }}" alt="{{ app.user.name }}" class="w-8 h-8 rounded-full">
+                                <img src="{{ proxy_avatar_url(app.user.avatar) }}" alt="{{ app.user.name }}" class="w-8 h-8 rounded-full">
                             {% endif %}
                             <span class="text-gray-700">{{ app.user.name }}</span>
                             {% if app.user.subscriptionPlan %}
@@ -38,6 +38,9 @@
                                     {{ app.user.subscriptionPlan|upper }}
                                 </span>
                             {% endif %}
+                            <a href="{{ path('account_settings') }}" class="text-gray-600 hover:text-gray-900" title="Account Settings">
+                                <i class="fas fa-cog"></i>
+                            </a>
                             <a href="{{ path('app_logout') }}" class="text-gray-600 hover:text-gray-900">
                                 <i class="fas fa-sign-out-alt"></i>
                             </a>
@@ -104,22 +107,23 @@
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Support</h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Help Center</a></li>
-                        <li><a href="#" class="hover:text-white">Contact</a></li>
-                        <li><a href="#" class="hover:text-white">Status</a></li>
+                        <li><a href="https://github.com/patrickjaja/workoflow-promo/blob/main/README.md" target="_blank" class="hover:text-white">Documentation</a></li>
+                        <li><a href="https://www.valantic.com/de/kontakt/" target="_blank" class="hover:text-white">Contact Support</a></li>
+                        <li><a href="https://status.github.com/" target="_blank" class="hover:text-white">System Status</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Company</h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">About</a></li>
-                        <li><a href="#" class="hover:text-white">Blog</a></li>
-                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="https://www.valantic.com/de/unternehmen/" target="_blank" class="hover:text-white">About Us</a></li>
+                        <li><a href="https://www.valantic.com/de/datenschutz/" target="_blank" class="hover:text-white">Data Protection</a></li>
+                        <li><a href="https://www.valantic.com/de/impressum/" target="_blank" class="hover:text-white">Legal Notice</a></li>
+                        <li><a href="https://www.valantic.com/de/karriere/" target="_blank" class="hover:text-white">Careers</a></li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 Workoflow. All rights reserved.</p>
+                <p>&copy; 2025 Workoflow. A valantic company. All rights reserved.</p>
             </div>
         </div>
     </footer>

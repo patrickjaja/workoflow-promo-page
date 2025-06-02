@@ -2,7 +2,9 @@
 
 namespace App\Security;
 
+use App\Entity\OrganizationMember;
 use App\Entity\User;
+use App\Repository\OrganizationMemberRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -23,17 +25,20 @@ class GoogleAuthenticator extends OAuth2Authenticator
     private ClientRegistry $clientRegistry;
     private EntityManagerInterface $entityManager;
     private UserRepository $userRepository;
+    private OrganizationMemberRepository $memberRepository;
     private RouterInterface $router;
 
     public function __construct(
         ClientRegistry $clientRegistry,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
+        OrganizationMemberRepository $memberRepository,
         RouterInterface $router
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->entityManager = $entityManager;
         $this->userRepository = $userRepository;
+        $this->memberRepository = $memberRepository;
         $this->router = $router;
     }
 
@@ -83,6 +88,46 @@ class GoogleAuthenticator extends OAuth2Authenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        /** @var User $user */
+        $user = $token->getUser();
+        $session = $request->getSession();
+
+        // Check if there's a pending member invitation
+        $pendingInvitation = $session->get('pending_member_invitation');
+        if ($pendingInvitation && strtolower($user->getEmail()) === strtolower($pendingInvitation['email'])) {
+            $member = $this->memberRepository->find($pendingInvitation['member_id']);
+            
+            if ($member && $member->isInvitationValid()) {
+                // Link the user to the organization member
+                $member->setUser($user);
+                $member->setStatus(OrganizationMember::STATUS_ACTIVE);
+                
+                // Set user organization details if not an admin
+                if (!$user->getOrganizationName()) {
+                    $user->setOrganizationName($member->getOrganizationName());
+                    $user->setIsOrganizationAdmin(false);
+                }
+                
+                $this->entityManager->flush();
+                $session->remove('pending_member_invitation');
+                
+                $session->getFlashBag()->add('success', sprintf(
+                    'Welcome to %s! Your invitation has been accepted and you are now a member of the organization.',
+                    $member->getOrganizationName()
+                ));
+                
+                return new RedirectResponse($this->router->generate('account_settings'));
+            }
+        } elseif ($pendingInvitation && strtolower($user->getEmail()) !== strtolower($pendingInvitation['email'])) {
+            // Email mismatch - clear session and show error
+            $session->remove('pending_member_invitation');
+            $session->getFlashBag()->add('error', sprintf(
+                'The invitation was sent to %s, but you signed in with %s. Please sign in with the correct account or request a new invitation.',
+                $pendingInvitation['email'],
+                $user->getEmail()
+            ));
+        }
+
         return new RedirectResponse($this->router->generate('index'));
     }
 

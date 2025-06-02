@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/patrickjaja/development/workoflow-promo/logs/.9d23ab65781e7d8551bf988508f753a2f8192893-audit.json",
+    "files": [
+        {
+            "date": 1748815829421,
+            "name": "/home/patrickjaja/development/workoflow-promo/logs/mcp-puppeteer-2025-06-02.log",
+            "hash": "9b387439c4b48192abbae27ab2f21b421dcfef3faa63188e7ad44bc5bfafb6ed"
+        }
+    ],
+    "hashType": "sha256"
+}

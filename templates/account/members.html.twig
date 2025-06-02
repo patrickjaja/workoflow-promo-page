@@ -1,0 +1,299 @@
+{% extends 'account/base.html.twig' %}
+
+{% block title %}Manage Members - {{ parent() }}{% endblock %}
+
+{% block account_content %}
+<div class="space-y-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Manage Members</h1>
+            <p class="mt-2 text-gray-600">Invite and manage organization members and their access permissions</p>
+        </div>
+        <button type="button" 
+                onclick="document.getElementById('invite-modal').classList.remove('hidden')"
+                class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+            <i class="fas fa-plus mr-2"></i>
+            Invite Member
+        </button>
+    </div>
+
+    <!-- Organization Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-users text-2xl text-purple-600"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Total Members</h3>
+                    <p class="text-2xl font-bold text-purple-600">{{ totalMembers + 1 }}</p>
+                    <p class="text-sm text-gray-500">Including admin</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-user-check text-2xl text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Active Members</h3>
+                    <p class="text-2xl font-bold text-green-600">{{ activeMembers|length + 1 }}</p>
+                    <p class="text-sm text-gray-500">Can access services</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-user-clock text-2xl text-yellow-600"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Pending Invites</h3>
+                    <p class="text-2xl font-bold text-yellow-600">{{ pendingMembers|length }}</p>
+                    <p class="text-sm text-gray-500">Awaiting acceptance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members List -->
+    <div class="bg-white shadow rounded-lg overflow-visible">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Organization Members</h2>
+        </div>
+
+        <div class="divide-y divide-gray-200">
+            <!-- Admin (Current User) -->
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        {% if app.user.avatar %}
+                            <img src="{{ proxy_avatar_url(app.user.avatar) }}" alt="{{ app.user.name }}" class="w-8 h-8 rounded-full">
+                        {% else %}
+                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-gray-600"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">{{ app.user.name }} (You)</h3>
+                            <p class="text-sm text-gray-500">{{ app.user.email }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            Admin
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Members -->
+            {% for member in activeMembers %}
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            {% if member.user and member.user.avatar %}
+                                <img src="{{ proxy_avatar_url(member.user.avatar) }}" alt="{{ member.name }}" class="w-8 h-8 rounded-full">
+                            {% else %}
+                                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-600"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900">{{ member.name }}</h3>
+                                <p class="text-sm text-gray-500">{{ member.email }}</p>
+                                <p class="text-xs text-gray-400">Joined {{ member.updatedAt|date('M j, Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Active
+                            </span>
+                            <div class="relative inline-block text-left">
+                                <button type="button" 
+                                        onclick="document.getElementById('member-menu-{{ member.id }}').classList.toggle('hidden')"
+                                        class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div id="member-menu-{{ member.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                                    <div class="py-1">
+                                        <a href="{{ path('account_member_resend_invite', {id: member.id}) }}" 
+                                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-envelope mr-2"></i>
+                                            Resend Invite
+                                        </a>
+                                        <form action="{{ path('account_member_deactivate', {id: member.id}) }}" method="POST" class="block">
+                                            <button type="submit" 
+                                                    onclick="return confirm('Are you sure you want to deactivate this member?')"
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                                <i class="fas fa-user-times mr-2"></i>
+                                                Deactivate
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Pending Members -->
+            {% for member in pendingMembers %}
+                <div class="px-6 py-4 bg-yellow-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-yellow-300 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-clock text-yellow-800"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900">{{ member.name }}</h3>
+                                <p class="text-sm text-gray-500">{{ member.email }}</p>
+                                <p class="text-xs text-gray-400">
+                                    Invited {{ member.createdAt|date('M j, Y') }}
+                                    {% if member.invitationExpiresAt %}
+                                        • Expires {{ member.invitationExpiresAt|date('M j, Y') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Pending
+                            </span>
+                            <div class="relative inline-block text-left">
+                                <button type="button" 
+                                        onclick="document.getElementById('pending-menu-{{ member.id }}').classList.toggle('hidden')"
+                                        class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div id="pending-menu-{{ member.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                                    <div class="py-1">
+                                        <form action="{{ path('account_member_resend_invite', {id: member.id}) }}" method="POST" class="block">
+                                            <button type="submit" 
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <i class="fas fa-envelope mr-2"></i>
+                                                Resend Invite
+                                            </button>
+                                        </form>
+                                        <form action="{{ path('account_member_cancel_invite', {id: member.id}) }}" method="POST" class="block">
+                                            <button type="submit" 
+                                                    onclick="return confirm('Are you sure you want to cancel this invitation?')"
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                                <i class="fas fa-times mr-2"></i>
+                                                Cancel Invite
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% if activeMembers|length == 0 and pendingMembers|length == 0 %}
+                <div class="px-6 py-8 text-center">
+                    <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No members yet</h3>
+                    <p class="text-gray-500 mb-4">Start building your team by inviting members to your organization.</p>
+                    <button type="button" 
+                            onclick="document.getElementById('invite-modal').classList.remove('hidden')"
+                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                        Invite Your First Member
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Invite Member Modal -->
+<div id="invite-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Invite Team Member</h3>
+                <button type="button" 
+                        onclick="document.getElementById('invite-modal').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form action="{{ path('account_member_invite') }}" method="POST" class="space-y-4">
+                <div>
+                    <label for="member_name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" 
+                           id="member_name" 
+                           name="name" 
+                           required
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                           placeholder="Enter member's full name">
+                </div>
+                
+                <div>
+                    <label for="member_email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" 
+                           id="member_email" 
+                           name="email" 
+                           required
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                           placeholder="Enter member's email address">
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                The member will receive an email invitation with a temporary login link. 
+                                They can then manage their own service integrations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" 
+                            onclick="document.getElementById('invite-modal').classList.add('hidden')"
+                            class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                        Send Invitation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Close modal when clicking outside
+document.getElementById('invite-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.add('hidden');
+    }
+});
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdowns = document.querySelectorAll('[id^="member-menu-"], [id^="pending-menu-"]');
+    dropdowns.forEach(dropdown => {
+        if (!dropdown.contains(e.target) && !dropdown.previousElementSibling.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+});
+</script>
+{% endblock %}

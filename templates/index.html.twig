@@ -30,18 +30,22 @@
                     <h3 class="text-2xl font-semibold mb-4">Welcome back, {{ app.user.name }}!</h3>
                     {% if app.user.subscriptionPlan %}
                         <p class="text-gray-300 mb-4">You're currently on the <strong style="color: var(--valantic-orange);">{{ app.user.subscriptionPlan|upper }}</strong> plan.</p>
-                        {% if app.user.subscriptionPlan != 'pro' %}
+                        {% if app.user.subscriptionPlan != 'pro' and app.user.isOrganizationAdmin %}
                             <a href="{{ path('subscribe', {plan: 'pro'}) }}" 
                                class="btn-valantic px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
                                 Upgrade to Pro
                             </a>
                         {% endif %}
                     {% else %}
-                        <p class="text-gray-300 mb-4">Ready to choose your plan?</p>
-                        <a href="#pricing" 
-                           class="btn-valantic px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
-                            Choose Your Plan
-                        </a>
+                        {% if app.user.isOrganizationAdmin %}
+                            <p class="text-gray-300 mb-4">Ready to choose your plan?</p>
+                            <a href="#pricing" 
+                               class="btn-valantic px-6 py-3 rounded-lg font-semibold transition duration-200 inline-block">
+                                Choose Your Plan
+                            </a>
+                        {% else %}
+                            <p class="text-gray-300 mb-4">Contact your organization administrator to manage subscriptions.</p>
+                        {% endif %}
                     {% endif %}
                 </div>
             {% endif %}
@@ -170,11 +174,15 @@
                             <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
                                 Current Plan
                             </button>
-                        {% else %}
+                        {% elseif app.user.isOrganizationAdmin %}
                             <a href="{{ path('subscribe', {plan: 'free'}) }}" 
                                class="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
                                 Start Proof of Concept
                             </a>
+                        {% else %}
+                            <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed" title="Only organization administrators can manage subscriptions">
+                                Admin Only
+                            </button>
                         {% endif %}
                     {% else %}
                         <a href="{{ path('connect_google_start') }}" 
@@ -227,16 +235,20 @@
                             <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
                                 Current Plan
                             </button>
-                        {% else %}
+                        {% elseif app.user.isOrganizationAdmin %}
                             <a href="{{ path('subscribe', {plan: 'pro'}) }}" 
                                class="w-full btn-valantic py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
-                                Deploy Production
+                                Production
                             </a>
+                        {% else %}
+                            <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed" title="Only organization administrators can manage subscriptions">
+                                Admin Only
+                            </button>
                         {% endif %}
                     {% else %}
                         <a href="{{ path('connect_google_start') }}" 
                            class="w-full btn-valantic py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
-                            Deploy Production
+                            Production
                         </a>
                     {% endif %}
                 </div>
@@ -281,11 +293,15 @@
                             <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
                                 Current Plan
                             </button>
-                        {% else %}
+                        {% elseif app.user.isOrganizationAdmin %}
                             <a href="{{ path('subscribe', {plan: 'enterprise'}) }}" 
                                class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition duration-200 inline-block text-center">
                                 Contact Sales
                             </a>
+                        {% else %}
+                            <button class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed" title="Only organization administrators can manage subscriptions">
+                                Admin Only
+                            </button>
                         {% endif %}
                     {% else %}
                         <a href="{{ path('connect_google_start') }}" 
@@ -315,11 +331,15 @@
                 Start Your Demo
             </a>
         {% else %}
-            {% if not app.user.subscriptionPlan %}
+            {% if not app.user.subscriptionPlan and app.user.isOrganizationAdmin %}
                 <a href="#pricing" 
                    class="btn-valantic px-8 py-4 rounded-lg text-lg font-semibold transition duration-200 inline-block">
                     Choose Your Plan
                 </a>
+            {% elseif not app.user.subscriptionPlan %}
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-md mx-auto">
+                    <p class="text-white text-lg">Contact your organization administrator to choose a plan.</p>
+                </div>
             {% else %}
                 <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-md mx-auto">
                     <p class="text-white text-lg">Thanks for being part of the Workoflow family!</p>

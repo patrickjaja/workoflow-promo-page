@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                Enterprise <span style="color: var(--valantic-orange);">Teams AI</span> Solutions
+            </h1>
+            <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                Get a customized Teams AI integration solution tailored to your organization's needs. 
+                Our team will design a solution that fits your specific requirements.
+            </p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8">
+            <form method="POST" action="{{ path('enterprise_contact_submit') }}">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="company_name" class="block text-sm font-medium mb-2">Company Name <span class="text-red-400">*</span></label>
+                        <input type="text" id="company_name" name="company_name" required
+                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition">
+                    </div>
+                    
+                    <div>
+                        <label for="company_size" class="block text-sm font-medium mb-2">Company Size <span class="text-red-400">*</span></label>
+                        <select id="company_size" name="company_size" required
+                                class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black focus:outline-none focus:border-white/40 transition">
+                            <option value="">Select company size</option>
+                            <option value="50-200">50-200 employees</option>
+                            <option value="200-500">200-500 employees</option>
+                            <option value="500-1000">500-1000 employees</option>
+                            <option value="1000-5000">1000-5000 employees</option>
+                            <option value="5000+">5000+ employees</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="contact_name" class="block text-sm font-medium mb-2">Your Name <span class="text-red-400">*</span></label>
+                        <input type="text" id="contact_name" name="contact_name" required
+                               value="{{ app.user ? app.user.name : '' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition">
+                    </div>
+                    
+                    <div>
+                        <label for="contact_email" class="block text-sm font-medium mb-2">Business Email <span class="text-red-400">*</span></label>
+                        <input type="email" id="contact_email" name="contact_email" required
+                               value="{{ app.user ? app.user.email : '' }}"
+                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="phone" class="block text-sm font-medium mb-2">Phone Number</label>
+                        <input type="tel" id="phone" name="phone"
+                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition">
+                    </div>
+                    
+                    <div>
+                        <label for="country" class="block text-sm font-medium mb-2">Country <span class="text-red-400">*</span></label>
+                        <input type="text" id="country" name="country" required
+                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="current_tools" class="block text-sm font-medium mb-2">Current Tools & Systems <span class="text-red-400">*</span></label>
+                    <textarea id="current_tools" name="current_tools" rows="3" required
+                              placeholder="What internal tools and systems do you currently use? (e.g., Jira, SAP, SharePoint, custom databases)"
+                              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition"></textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label for="use_cases" class="block text-sm font-medium mb-2">Primary Use Cases <span class="text-red-400">*</span></label>
+                    <textarea id="use_cases" name="use_cases" rows="4" required
+                              placeholder="What are your main use cases for Teams AI integration? (e.g., employee queries, task automation, data retrieval)"
+                              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition"></textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-3">Key Requirements <span class="text-red-400">*</span></label>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="requirements[]" value="gdpr_compliance" checked disabled
+                                   class="mr-3 h-5 w-5 rounded text-orange-500 bg-white/10 border-white/20">
+                            <span>GDPR Compliance (included in all plans)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="requirements[]" value="custom_workflows"
+                                   class="mr-3 h-5 w-5 rounded text-orange-500 bg-white/10 border-white/20">
+                            <span>Custom n8n workflow development</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="requirements[]" value="dedicated_support"
+                                   class="mr-3 h-5 w-5 rounded text-orange-500 bg-white/10 border-white/20">
+                            <span>24/7 dedicated support</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="requirements[]" value="on_premise"
+                                   class="mr-3 h-5 w-5 rounded text-orange-500 bg-white/10 border-white/20">
+                            <span>On-premise deployment option</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="requirements[]" value="sla"
+                                   class="mr-3 h-5 w-5 rounded text-orange-500 bg-white/10 border-white/20">
+                            <span>Enterprise SLA</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="timeline" class="block text-sm font-medium mb-2">Implementation Timeline <span class="text-red-400">*</span></label>
+                    <select id="timeline" name="timeline" required
+                            class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black focus:outline-none focus:border-white/40 transition">
+                        <option value="">Select timeline</option>
+                        <option value="immediate">Immediate (< 1 month)</option>
+                        <option value="1-3-months">1-3 months</option>
+                        <option value="3-6-months">3-6 months</option>
+                        <option value="6-12-months">6-12 months</option>
+                        <option value="planning">Just planning/researching</option>
+                    </select>
+                </div>
+
+                <div class="mb-8">
+                    <label for="additional_info" class="block text-sm font-medium mb-2">Additional Information</label>
+                    <textarea id="additional_info" name="additional_info" rows="4"
+                              placeholder="Any additional requirements or questions?"
+                              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-black placeholder-gray-400 focus:outline-none focus:border-white/40 transition"></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn-valantic px-8 py-4 rounded-lg text-lg font-semibold transition duration-200">
+                        Submit Enterprise Inquiry
+                    </button>
+                    <p class="text-sm text-gray-400 mt-4">
+                        We'll review your requirements and contact you within 1 business day.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

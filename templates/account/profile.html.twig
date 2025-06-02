@@ -1,0 +1,123 @@
+{% extends 'account/base.html.twig' %}
+
+{% block title %}Profile - {{ parent() }}{% endblock %}
+
+{% block account_content %}
+<div class="space-y-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Profile Settings</h1>
+        <p class="mt-2 text-gray-600">Manage your personal information and account preferences</p>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
+        
+        <form action="{{ path('account_profile_update') }}" method="POST" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="name" value="{{ user.name }}" 
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" 
+                           readonly>
+                    <p class="mt-1 text-xs text-gray-500">Managed by Google authentication</p>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" value="{{ user.email }}" 
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" 
+                           readonly>
+                    <p class="mt-1 text-xs text-gray-500">Managed by Google authentication</p>
+                </div>
+            </div>
+
+            <div>
+                <label for="teams_account_name" class="block text-sm font-medium text-gray-700">Teams Account Name</label>
+                <input type="text" id="teams_account_name" name="teams_account_name" 
+                       value="{{ user.teamsAccountName }}" 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                       placeholder="Enter your Microsoft Teams account name">
+                <p class="mt-1 text-xs text-gray-500">This will be used to identify your Teams account in integrations</p>
+            </div>
+
+            {% if user.isOrganizationAdmin %}
+                <div>
+                    <label for="organization_name" class="block text-sm font-medium text-gray-700">Organization Name</label>
+                    <input type="text" id="organization_name" name="organization_name" 
+                           value="{{ user.organizationName }}" 
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                           placeholder="Enter your organization name">
+                    <p class="mt-1 text-xs text-gray-500">This will be used for organizing team members and access control</p>
+                </div>
+            {% endif %}
+
+            <div class="flex justify-end">
+                <button type="submit" 
+                        class="px-4 py-2 text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                    Update Profile
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Account Information -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Account Created</label>
+                <p class="mt-1 text-sm text-gray-900">{{ user.createdAt|date('F j, Y') }}</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Subscription Plan</label>
+                <div class="mt-1 flex items-center">
+                    {% if user.subscriptionPlan %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                     {% if user.subscriptionPlan == 'free' %}bg-gray-100 text-gray-800
+                                     {% elseif user.subscriptionPlan == 'pro' %}bg-purple-100 text-purple-800
+                                     {% elseif user.subscriptionPlan == 'enterprise' %}bg-yellow-100 text-yellow-800
+                                     {% endif %}">
+                            {{ user.subscriptionPlan|upper }}
+                        </span>
+                        {% if user.subscriptionExpiresAt %}
+                            <span class="ml-2 text-xs text-gray-500">
+                                Expires {{ user.subscriptionExpiresAt|date('M j, Y') }}
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-sm text-gray-500">No subscription</span>
+                        {% if user.isOrganizationAdmin %}
+                            <a href="{{ path('index') }}#pricing" class="ml-2 text-sm text-purple-600 hover:text-purple-700">Choose a plan</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="bg-white shadow rounded-lg p-6 border-l-4 border-red-400">
+        <h2 class="text-xl font-semibold text-red-900 mb-4">Danger Zone</h2>
+        <p class="text-sm text-gray-600 mb-4">
+            These actions are irreversible. Please be certain before proceeding.
+        </p>
+        
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 border border-red-200 rounded-lg">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-900">Delete Account</h3>
+                    <p class="text-sm text-gray-600">Permanently delete your account and all associated data.</p>
+                </div>
+                <button type="button" 
+                        class="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        onclick="alert('Account deletion is not yet implemented. Please contact support.')">
+                    Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
