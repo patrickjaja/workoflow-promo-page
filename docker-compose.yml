@@ -2,6 +2,8 @@ services:
   frankenphp:
     build: .
     restart: unless-stopped
+    env_file:
+      - .env
     command: frankenphp run --config /etc/caddy/Caddyfile --watch
     ports:
       - "3979:80"
