@@ -17,16 +17,16 @@ echo "🐳 Pulling latest Docker images..."
 docker-compose pull
 
 echo "📦 Installing/updating Composer dependencies..."
-docker exec workoflow-promo-frankenphp-1 composer install --no-dev --optimize-autoloader
+docker exec workoflow-promo-page-frankenphp-1 composer install --no-dev --optimize-autoloader
 
 echo "🗄️  Running database migrations..."
-docker exec workoflow-promo-frankenphp-1 bin/console doctrine:migrations:migrate --no-interaction
+docker exec workoflow-promo-page-frankenphp-1 bin/console doctrine:migrations:migrate --no-interaction
 
 echo "🧹 Clearing Symfony cache..."
-docker exec workoflow-promo-frankenphp-1 bin/console cache:clear --env=prod --no-debug
+docker exec workoflow-promo-page-frankenphp-1 bin/console cache:clear --env=prod --no-debug
 
 echo "🔥 Warming up cache..."
-docker exec workoflow-promo-frankenphp-1 bin/console cache:warmup --env=prod --no-debug
+docker exec workoflow-promo-page-frankenphp-1 bin/console cache:warmup --env=prod --no-debug
 
 echo "🔄 Restarting containers..."
 docker-compose down
