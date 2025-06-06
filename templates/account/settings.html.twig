@@ -13,97 +13,86 @@
     <div class="bg-white shadow rounded-lg p-6">
         <div class="mb-6">
             <h2 class="text-xl font-semibold text-gray-900">Available Services</h2>
-            <p class="text-gray-600">Configure access tokens for external service integrations</p>
+            <p class="text-gray-600">Configure multiple access tokens for each external service integration</p>
         </div>
 
-            <div class="space-y-6">
-                {% for service in availableServices %}
-                    {% set hasToken = tokensByService[service] is defined %}
-                    {% set serviceName = service|title %}
-                    {% set serviceIcon = {
-                        'atlassian': 'fab fa-atlassian',
-                        'gitlab': 'fab fa-gitlab',
-                        'github': 'fab fa-github'
-                    }[service] %}
+        <div class="space-y-6">
+            {% for service in availableServices %}
+                {% set serviceName = service|title %}
+                {% set serviceIcon = {
+                    'atlassian': 'fab fa-atlassian',
+                    'gitlab': 'fab fa-gitlab',
+                    'github': 'fab fa-github'
+                }[service] %}
+                {% set integrations = integrationsByService[service]|default([]) %}
 
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center space-x-3">
-                                <i class="{{ serviceIcon }} text-2xl text-gray-600"></i>
-                                <div>
-                                    <h3 class="text-lg font-medium text-gray-900">{{ serviceName }}</h3>
-                                    <p class="text-sm text-gray-500">
-                                        {% if hasToken %}
-                                            {% if service == 'atlassian' %}
-                                                {% set atlassianToken = tokensByService['atlassian'] %}
-                                                {% if atlassianToken.confluenceUrl and atlassianToken.jiraUrl %}
-                                                    Integration configured
-                                                    <span class="text-green-600">
-                                                        <i class="fas fa-check-circle"></i>
-                                                    </span>
-                                                {% else %}
-                                                    Incomplete configuration
-                                                    <span class="text-yellow-600">
-                                                        <i class="fas fa-exclamation-triangle"></i>
-                                                    </span>
-                                                {% endif %}
-                                            {% else %}
-                                                Token configured
-                                                <span class="text-green-600">
-                                                    <i class="fas fa-check-circle"></i>
-                                                </span>
-                                            {% endif %}
-                                        {% else %}
-                                            {% if service == 'atlassian' %}
-                                                No integration configured
-                                            {% else %}
-                                                No token configured
-                                            {% endif %}
-                                            <span class="text-red-600">
-                                                <i class="fas fa-times-circle"></i>
-                                            </span>
-                                        {% endif %}
-                                    </p>
-                                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="{{ serviceIcon }} text-2xl text-gray-600"></i>
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">{{ serviceName }}</h3>
+                                <p class="text-sm text-gray-500">
+                                    {{ integrations|length }} integration{{ integrations|length != 1 ? 's' : '' }} configured
+                                </p>
                             </div>
-                            {% if hasToken %}
-                                <form action="{{ path('account_token_delete', {'service': service}) }}" method="POST" class="inline">
-                                    <button type="submit" 
-                                            class="text-red-600 hover:text-red-700"
-                                            onclick="return confirm('Are you sure you want to delete this token?')">
-                                        <i class="fas fa-trash"></i>
-                                        Delete
-                                    </button>
-                                </form>
-                            {% endif %}
                         </div>
+                        <button type="button" 
+                                onclick="toggleServiceForm('{{ service }}')"
+                                class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                            <i class="fas fa-plus"></i>
+                            Add Integration
+                        </button>
+                    </div>
 
-                        <form action="{{ path('account_token_update', {'service': service}) }}" method="POST" class="space-y-3">
+                    <!-- New Integration Form (Hidden by default) -->
+                    <div id="new-{{ service }}-form" class="hidden mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">New {{ serviceName }} Integration</h4>
+                        <form action="{{ path('account_integration_create', {'service': service}) }}" method="POST" class="space-y-3">
+                            <div>
+                                <label for="new_name_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                    Integration Name <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="new_name_{{ service }}" 
+                                       name="name" 
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="e.g., Production, Development, Personal"
+                                       required>
+                            </div>
+                            
+                            <div>
+                                <label for="new_description_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                    Description
+                                </label>
+                                <textarea id="new_description_{{ service }}" 
+                                          name="description" 
+                                          rows="2"
+                                          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                          placeholder="Optional description for this integration"></textarea>
+                            </div>
+
                             {% if service == 'atlassian' %}
-                                {% set atlassianToken = tokensByService['atlassian'] ?? null %}
-                                
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label for="confluence_url_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                        <label for="new_confluence_url_{{ service }}" class="block text-sm font-medium text-gray-700">
                                             Confluence URL <span class="text-red-500">*</span>
                                         </label>
                                         <input type="url" 
-                                               id="confluence_url_{{ service }}" 
+                                               id="new_confluence_url_{{ service }}" 
                                                name="confluence_url" 
-                                               value="{{ atlassianToken ? atlassianToken.confluenceUrl : '' }}"
                                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                                placeholder="https://your-domain.atlassian.net"
                                                required>
                                     </div>
                                     
                                     <div>
-                                        <label for="confluence_username_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                        <label for="new_confluence_username_{{ service }}" class="block text-sm font-medium text-gray-700">
                                             Confluence Username <span class="text-red-500">*</span>
                                         </label>
                                         <input type="text" 
-                                               id="confluence_username_{{ service }}" 
+                                               id="new_confluence_username_{{ service }}" 
                                                name="confluence_username" 
-                                               value="{{ atlassianToken ? atlassianToken.confluenceUsername : '' }}"
                                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                                placeholder="your.email@company.com"
                                                required>
@@ -111,13 +100,12 @@
                                 </div>
                                 
                                 <div>
-                                    <label for="confluence_api_token_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                    <label for="new_confluence_api_token_{{ service }}" class="block text-sm font-medium text-gray-700">
                                         Confluence API Token <span class="text-red-500">*</span>
                                     </label>
                                     <input type="password" 
-                                           id="confluence_api_token_{{ service }}" 
+                                           id="new_confluence_api_token_{{ service }}" 
                                            name="confluence_api_token" 
-                                           value="{% if atlassianToken and atlassianToken.confluenceApiToken %}••••••••••••••••{% endif %}"
                                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                            placeholder="Enter your Confluence API token"
                                            required>
@@ -125,26 +113,24 @@
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label for="jira_url_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                        <label for="new_jira_url_{{ service }}" class="block text-sm font-medium text-gray-700">
                                             Jira URL <span class="text-red-500">*</span>
                                         </label>
                                         <input type="url" 
-                                               id="jira_url_{{ service }}" 
+                                               id="new_jira_url_{{ service }}" 
                                                name="jira_url" 
-                                               value="{{ atlassianToken ? atlassianToken.jiraUrl : '' }}"
                                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                                placeholder="https://your-domain.atlassian.net"
                                                required>
                                     </div>
                                     
                                     <div>
-                                        <label for="jira_username_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                        <label for="new_jira_username_{{ service }}" class="block text-sm font-medium text-gray-700">
                                             Jira Username <span class="text-red-500">*</span>
                                         </label>
                                         <input type="text" 
-                                               id="jira_username_{{ service }}" 
+                                               id="new_jira_username_{{ service }}" 
                                                name="jira_username" 
-                                               value="{{ atlassianToken ? atlassianToken.jiraUsername : '' }}"
                                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                                placeholder="your.email@company.com"
                                                required>
@@ -152,45 +138,27 @@
                                 </div>
                                 
                                 <div>
-                                    <label for="jira_api_token_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                    <label for="new_jira_api_token_{{ service }}" class="block text-sm font-medium text-gray-700">
                                         Jira API Token <span class="text-red-500">*</span>
                                     </label>
                                     <input type="password" 
-                                           id="jira_api_token_{{ service }}" 
+                                           id="new_jira_api_token_{{ service }}" 
                                            name="jira_api_token" 
-                                           value="{% if atlassianToken and atlassianToken.jiraApiToken %}••••••••••••••••{% endif %}"
                                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                            placeholder="Enter your Jira API token"
                                            required>
                                 </div>
-                                
-                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <div class="flex">
-                                        <div class="flex-shrink-0">
-                                            <i class="fas fa-info-circle text-blue-600"></i>
-                                        </div>
-                                        <div class="ml-3">
-                                            <h4 class="text-sm font-medium text-blue-800">API Token Setup</h4>
-                                            <div class="mt-2 text-sm text-blue-700">
-                                                <p>1. Go to <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" class="underline">Atlassian API Tokens</a></p>
-                                                <p>2. Create a new API token</p>
-                                                <p>3. Use the same token for both Confluence and Jira</p>
-                                                <p>4. Your username should be your Atlassian email address</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             {% else %}
                                 <div>
-                                    <label for="token_{{ service }}" class="block text-sm font-medium text-gray-700">
-                                        Access Token
+                                    <label for="new_token_{{ service }}" class="block text-sm font-medium text-gray-700">
+                                        Access Token <span class="text-red-500">*</span>
                                     </label>
                                     <input type="password" 
-                                           id="token_{{ service }}" 
+                                           id="new_token_{{ service }}" 
                                            name="token" 
-                                           value="{% if hasToken %}••••••••••••••••{% endif %}"
                                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                                           placeholder="Enter your {{ serviceName }} access token">
+                                           placeholder="Enter your {{ serviceName }} access token"
+                                           required>
                                     <p class="mt-1 text-xs text-gray-500">
                                         {% if service == 'gitlab' %}
                                             Generate a personal access token in GitLab with API scope
@@ -201,15 +169,218 @@
                                 </div>
                             {% endif %}
                             
-                            <div class="flex justify-end">
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" 
+                                        onclick="toggleServiceForm('{{ service }}')"
+                                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                    Cancel
+                                </button>
                                 <button type="submit" 
-                                        class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                    {% if hasToken %}Update{% else %}Save{% endif %} {% if service == 'atlassian' %}Integration{% else %}Token{% endif %}
+                                        class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                                    Create Integration
                                 </button>
                             </div>
                         </form>
                     </div>
-                {% endfor %}
+
+                    <!-- Existing Integrations -->
+                    {% if integrations %}
+                        <div class="space-y-3">
+                            {% for integration in integrations %}
+                                {% set accessToken = integration.accessTokens.first() %}
+                                <div class="border border-gray-200 rounded-md p-3 {% if integration.isDefault %}bg-blue-50 border-blue-300{% else %}bg-white{% endif %}">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">
+                                                {{ integration.name }}
+                                                {% if integration.isDefault %}
+                                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        Default
+                                                    </span>
+                                                {% endif %}
+                                            </h4>
+                                            {% if integration.description %}
+                                                <p class="text-sm text-gray-600">{{ integration.description }}</p>
+                                            {% endif %}
+                                            <p class="text-xs text-gray-500">
+                                                Created: {{ integration.createdAt|date('Y-m-d H:i') }}
+                                            </p>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            {% if not integration.isDefault %}
+                                                <form action="{{ path('account_integration_set_default', {'integrationId': integration.id}) }}" method="POST" class="inline">
+                                                    <button type="submit" 
+                                                            class="text-blue-600 hover:text-blue-700 text-sm"
+                                                            title="Set as default">
+                                                        <i class="fas fa-star"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                            <button type="button"
+                                                    onclick="toggleIntegrationEdit('{{ service }}-{{ integration.id }}')"
+                                                    class="text-gray-600 hover:text-gray-700 text-sm"
+                                                    title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form action="{{ path('account_integration_delete', {'integrationId': integration.id}) }}" method="POST" class="inline">
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:text-red-700 text-sm"
+                                                        onclick="return confirm('Are you sure you want to delete this integration?')"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Edit Form (Hidden by default) -->
+                                    <div id="edit-{{ service }}-{{ integration.id }}" class="hidden mt-3 pt-3 border-t border-gray-200">
+                                        <form action="{{ path('account_integration_update', {'integrationId': integration.id}) }}" method="POST" class="space-y-3">
+                                            <div>
+                                                <label for="edit_name_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                    Integration Name
+                                                </label>
+                                                <input type="text" 
+                                                       id="edit_name_{{ integration.id }}" 
+                                                       name="name" 
+                                                       value="{{ integration.name }}"
+                                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="edit_description_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                    Description
+                                                </label>
+                                                <textarea id="edit_description_{{ integration.id }}" 
+                                                          name="description" 
+                                                          rows="2"
+                                                          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ integration.description }}</textarea>
+                                            </div>
+
+                                            {% if service == 'atlassian' and accessToken %}
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label for="edit_confluence_url_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                            Confluence URL
+                                                        </label>
+                                                        <input type="url" 
+                                                               id="edit_confluence_url_{{ integration.id }}" 
+                                                               name="confluence_url" 
+                                                               value="{{ accessToken.confluenceUrl }}"
+                                                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label for="edit_confluence_username_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                            Confluence Username
+                                                        </label>
+                                                        <input type="text" 
+                                                               id="edit_confluence_username_{{ integration.id }}" 
+                                                               name="confluence_username" 
+                                                               value="{{ accessToken.confluenceUsername }}"
+                                                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div>
+                                                    <label for="edit_confluence_api_token_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                        Confluence API Token
+                                                    </label>
+                                                    <input type="password" 
+                                                           id="edit_confluence_api_token_{{ integration.id }}" 
+                                                           name="confluence_api_token" 
+                                                           value="{% if accessToken.confluenceApiToken %}••••••••••••••••{% endif %}"
+                                                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                                           placeholder="Leave blank to keep existing token">
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label for="edit_jira_url_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                            Jira URL
+                                                        </label>
+                                                        <input type="url" 
+                                                               id="edit_jira_url_{{ integration.id }}" 
+                                                               name="jira_url" 
+                                                               value="{{ accessToken.jiraUrl }}"
+                                                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label for="edit_jira_username_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                            Jira Username
+                                                        </label>
+                                                        <input type="text" 
+                                                               id="edit_jira_username_{{ integration.id }}" 
+                                                               name="jira_username" 
+                                                               value="{{ accessToken.jiraUsername }}"
+                                                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div>
+                                                    <label for="edit_jira_api_token_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                        Jira API Token
+                                                    </label>
+                                                    <input type="password" 
+                                                           id="edit_jira_api_token_{{ integration.id }}" 
+                                                           name="jira_api_token" 
+                                                           value="{% if accessToken.jiraApiToken %}••••••••••••••••{% endif %}"
+                                                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                                           placeholder="Leave blank to keep existing token">
+                                                </div>
+                                            {% else %}
+                                                <div>
+                                                    <label for="edit_token_{{ integration.id }}" class="block text-sm font-medium text-gray-700">
+                                                        Access Token
+                                                    </label>
+                                                    <input type="password" 
+                                                           id="edit_token_{{ integration.id }}" 
+                                                           name="token" 
+                                                           value="{% if accessToken %}••••••••••••••••{% endif %}"
+                                                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                                           placeholder="Leave blank to keep existing token">
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <div class="flex justify-end space-x-3">
+                                                <button type="button" 
+                                                        onclick="toggleIntegrationEdit('{{ service }}-{{ integration.id }}')"
+                                                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                                    Cancel
+                                                </button>
+                                                <button type="submit" 
+                                                        class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                                                    Update Integration
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if service == 'atlassian' %}
+                        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-blue-800">API Token Setup</h4>
+                                    <div class="mt-2 text-sm text-blue-700">
+                                        <p>1. Go to <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" class="underline">Atlassian API Tokens</a></p>
+                                        <p>2. Create a new API token</p>
+                                        <p>3. Use the same token for both Confluence and Jira</p>
+                                        <p>4. Your username should be your Atlassian email address</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -228,4 +399,20 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleServiceForm(service) {
+    const form = document.getElementById('new-' + service + '-form');
+    if (form) {
+        form.classList.toggle('hidden');
+    }
+}
+
+function toggleIntegrationEdit(integrationId) {
+    const form = document.getElementById('edit-' + integrationId);
+    if (form) {
+        form.classList.toggle('hidden');
+    }
+}
+</script>
 {% endblock %}

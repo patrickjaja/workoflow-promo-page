@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -53,10 +55,14 @@ class User implements UserInterface
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isOrganizationAdmin = true;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ServiceIntegration::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $serviceIntegrations;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->roles = ['ROLE_USER'];
+        $this->serviceIntegrations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,6 +216,35 @@ class User implements UserInterface
     public function setIsOrganizationAdmin(bool $isOrganizationAdmin): static
     {
         $this->isOrganizationAdmin = $isOrganizationAdmin;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ServiceIntegration>
+     */
+    public function getServiceIntegrations(): Collection
+    {
+        return $this->serviceIntegrations;
+    }
+
+    public function addServiceIntegration(ServiceIntegration $serviceIntegration): static
+    {
+        if (!$this->serviceIntegrations->contains($serviceIntegration)) {
+            $this->serviceIntegrations->add($serviceIntegration);
+            $serviceIntegration->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeServiceIntegration(ServiceIntegration $serviceIntegration): static
+    {
+        if ($this->serviceIntegrations->removeElement($serviceIntegration)) {
+            if ($serviceIntegration->getUser() === $this) {
+                $serviceIntegration->setUser(null);
+            }
+        }
+
         return $this;
     }
 }

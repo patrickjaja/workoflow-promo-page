@@ -33,12 +33,12 @@
             </div>
 
             <div>
-                <label for="teams_account_name" class="block text-sm font-medium text-gray-700">Teams Account Name</label>
+                <label for="teams_account_name" class="block text-sm font-medium text-gray-700">Microsoft Teams ID</label>
                 <input type="text" id="teams_account_name" name="teams_account_name" 
                        value="{{ user.teamsAccountName }}" 
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                       placeholder="Enter your Microsoft Teams account name">
-                <p class="mt-1 text-xs text-gray-500">This will be used to identify your Teams account in integrations</p>
+                       placeholder="Enter your Microsoft Teams ID">
+                <p class="mt-1 text-xs text-gray-500">Ask Workoflow Teams Bot about your Teams ID, prompt example: "What's my Teams ID"</p>
             </div>
 
             {% if user.isOrganizationAdmin %}

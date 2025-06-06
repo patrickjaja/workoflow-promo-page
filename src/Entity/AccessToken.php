@@ -8,7 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccessTokenRepository::class)]
 #[ORM\Table(name: 'access_token')]
-#[ORM\UniqueConstraint(name: 'UNIQ_USER_SERVICE', columns: ['user_id', 'service'])]
 class AccessToken
 {
     public const SERVICE_ATLASSIAN = 'atlassian';
@@ -26,12 +25,9 @@ class AccessToken
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: ServiceIntegration::class, inversedBy: 'accessTokens')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $service = null;
+    private ?ServiceIntegration $serviceIntegration = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $token = null;
@@ -71,30 +67,25 @@ class AccessToken
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getServiceIntegration(): ?ServiceIntegration
     {
-        return $this->user;
+        return $this->serviceIntegration;
     }
 
-    public function setUser(User $user): static
+    public function setServiceIntegration(?ServiceIntegration $serviceIntegration): static
     {
-        $this->user = $user;
+        $this->serviceIntegration = $serviceIntegration;
         return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->serviceIntegration?->getUser();
     }
 
     public function getService(): ?string
     {
-        return $this->service;
-    }
-
-    public function setService(string $service): static
-    {
-        if (!in_array($service, self::AVAILABLE_SERVICES)) {
-            throw new \InvalidArgumentException(sprintf('Invalid service "%s". Available services: %s', $service, implode(', ', self::AVAILABLE_SERVICES)));
-        }
-        
-        $this->service = $service;
-        return $this;
+        return $this->serviceIntegration?->getService();
     }
 
     public function getToken(): ?string

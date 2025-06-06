@@ -42,20 +42,31 @@ account_settings:
     path: /account/settings
     controller: App\Controller\AccountSettingsController::settings
 
-account_settings_update:
-    path: /account/settings/update
-    controller: App\Controller\AccountSettingsController::updateSettings
+account_integration_create:
+    path: /account/settings/integration/{service}/create
+    controller: App\Controller\AccountSettingsController::createIntegration
     methods: [POST]
 
-account_token_update:
-    path: /account/settings/token/{service}
-    controller: App\Controller\AccountSettingsController::updateToken
+account_integration_update:
+    path: /account/settings/integration/{integrationId}/update
+    controller: App\Controller\AccountSettingsController::updateIntegration
     methods: [POST]
+    requirements:
+        integrationId: '\d+'
 
-account_token_delete:
-    path: /account/settings/token/{service}/delete
-    controller: App\Controller\AccountSettingsController::deleteToken
+account_integration_delete:
+    path: /account/settings/integration/{integrationId}/delete
+    controller: App\Controller\AccountSettingsController::deleteIntegration
     methods: [POST]
+    requirements:
+        integrationId: '\d+'
+
+account_integration_set_default:
+    path: /account/settings/integration/{integrationId}/set-default
+    controller: App\Controller\AccountSettingsController::setDefaultIntegration
+    methods: [POST]
+    requirements:
+        integrationId: '\d+'
 
 enterprise_contact:
     path: /enterprise/contact

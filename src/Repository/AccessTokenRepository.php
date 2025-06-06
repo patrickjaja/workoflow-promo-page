@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\AccessToken;
+use App\Entity\ServiceIntegration;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,23 +18,23 @@ class AccessTokenRepository extends ServiceEntityRepository
         parent::__construct($registry, AccessToken::class);
     }
 
-    public function findByUserAndService(User $user, string $service): ?AccessToken
+    public function findByServiceIntegration(ServiceIntegration $serviceIntegration): array
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.user = :user')
-            ->andWhere('a.service = :service')
-            ->setParameter('user', $user)
-            ->setParameter('service', $service)
+            ->andWhere('a.serviceIntegration = :serviceIntegration')
+            ->setParameter('serviceIntegration', $serviceIntegration)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
     }
 
     public function findAllByUser(User $user): array
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.user = :user')
+            ->join('a.serviceIntegration', 'si')
+            ->andWhere('si.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('a.service', 'ASC')
+            ->orderBy('si.service', 'ASC')
+            ->addOrderBy('si.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
@@ -41,9 +42,10 @@ class AccessTokenRepository extends ServiceEntityRepository
     public function findByOrganizationAndService(string $organizationName, string $service): array
     {
         return $this->createQueryBuilder('a')
-            ->join('a.user', 'u')
+            ->join('a.serviceIntegration', 'si')
+            ->join('si.user', 'u')
             ->andWhere('u.organizationName = :organizationName')
-            ->andWhere('a.service = :service')
+            ->andWhere('si.service = :service')
             ->setParameter('organizationName', $organizationName)
             ->setParameter('service', $service)
             ->getQuery()
