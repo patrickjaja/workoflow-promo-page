@@ -19,3 +19,8 @@
     - `puppeteer.test2@example.com` (Regular user with Teams ID: TEAMS_ID_002)
 - Example: When testing protected pages, navigate with the header to authenticate as a test user
 - All webpage feature implementations MUST be manually tested before completion
+
+# Git commits
+- Always use current git user as the author for git commits
+- NEVER add Co-Authored-By or any Claude/Claude Code references in commit messages
+- Keep commit messages clean and professional without AI-generated signatures
