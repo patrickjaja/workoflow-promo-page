@@ -58,11 +58,15 @@ class User implements UserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ServiceIntegration::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $serviceIntegrations;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: IncomingConnection::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $incomingConnections;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->roles = ['ROLE_USER'];
         $this->serviceIntegrations = new ArrayCollection();
+        $this->incomingConnections = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -242,6 +246,35 @@ class User implements UserInterface
         if ($this->serviceIntegrations->removeElement($serviceIntegration)) {
             if ($serviceIntegration->getUser() === $this) {
                 $serviceIntegration->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IncomingConnection>
+     */
+    public function getIncomingConnections(): Collection
+    {
+        return $this->incomingConnections;
+    }
+
+    public function addIncomingConnection(IncomingConnection $incomingConnection): static
+    {
+        if (!$this->incomingConnections->contains($incomingConnection)) {
+            $this->incomingConnections->add($incomingConnection);
+            $incomingConnection->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIncomingConnection(IncomingConnection $incomingConnection): static
+    {
+        if ($this->incomingConnections->removeElement($incomingConnection)) {
+            if ($incomingConnection->getUser() === $this) {
+                $incomingConnection->setUser(null);
             }
         }
 

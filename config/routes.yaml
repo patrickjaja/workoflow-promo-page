@@ -43,30 +43,37 @@ account_settings:
     controller: App\Controller\AccountSettingsController::settings
 
 account_integration_create:
-    path: /account/settings/integration/{service}/create
-    controller: App\Controller\AccountSettingsController::createIntegration
+    path: /account/integration/{service}/create
+    controller: App\Controller\ServiceIntegrationController::create
     methods: [POST]
 
 account_integration_update:
-    path: /account/settings/integration/{integrationId}/update
-    controller: App\Controller\AccountSettingsController::updateIntegration
+    path: /account/integration/{id}/update
+    controller: App\Controller\ServiceIntegrationController::update
     methods: [POST]
     requirements:
-        integrationId: '\d+'
+        id: '\d+'
 
 account_integration_delete:
-    path: /account/settings/integration/{integrationId}/delete
-    controller: App\Controller\AccountSettingsController::deleteIntegration
-    methods: [POST]
+    path: /account/integration/{id}/delete
+    controller: App\Controller\ServiceIntegrationController::delete
+    methods: [DELETE]
     requirements:
-        integrationId: '\d+'
+        id: '\d+'
 
 account_integration_set_default:
-    path: /account/settings/integration/{integrationId}/set-default
-    controller: App\Controller\AccountSettingsController::setDefaultIntegration
+    path: /account/integration/{id}/set-default
+    controller: App\Controller\ServiceIntegrationController::setDefault
     methods: [POST]
     requirements:
-        integrationId: '\d+'
+        id: '\d+'
+
+account_integration_toggle:
+    path: /account/integration/{id}/toggle
+    controller: App\Controller\ServiceIntegrationController::toggle
+    methods: [POST]
+    requirements:
+        id: '\d+'
 
 enterprise_contact:
     path: /enterprise/contact
@@ -87,6 +94,28 @@ account_profile_update:
     path: /account/profile/update
     controller: App\Controller\AccountSettingsController::updateProfile
     methods: [POST]
+
+account_incoming_connections_index:
+    path: /account/incoming-connections
+    controller: App\Controller\IncomingConnectionController::index
+    methods: [GET]
+
+account_incoming_connections_list:
+    path: /account/incoming-connections/list
+    controller: App\Controller\IncomingConnectionController::list
+    methods: [GET]
+
+account_incoming_connections_create:
+    path: /account/incoming-connections
+    controller: App\Controller\IncomingConnectionController::create
+    methods: [POST]
+
+account_incoming_connections_delete:
+    path: /account/incoming-connections/{id}
+    controller: App\Controller\IncomingConnectionController::delete
+    methods: [DELETE]
+    requirements:
+        id: '\d+'
 
 account_members:
     path: /account/members

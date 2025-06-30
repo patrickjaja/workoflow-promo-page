@@ -219,7 +219,7 @@ Hi %s,
 %s has invited you to join their organization '%s' on Workoflow.
 
 As a member, you'll be able to:
-- Manage your own service integrations (Atlassian, GitLab, GitHub)
+- Manage your own service integrations (Atlassian, Decidalo, Custom Content Search)
 - Access team automation workflows
 - Collaborate with your team through Teams AI integration
 

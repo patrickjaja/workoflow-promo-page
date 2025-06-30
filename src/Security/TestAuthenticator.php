@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class TestAuthenticator extends AbstractAuthenticator
 {
-    private const HEADER_NAME = 'X-Test-Auth-Email';
+    private const PARAM_NAME = 'X-Test-Auth-Email';
     
     public function __construct(
         private UserRepository $userRepository
@@ -24,20 +24,20 @@ class TestAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has(self::HEADER_NAME);
+        return $request->query->has(self::PARAM_NAME);
     }
 
     public function authenticate(Request $request): Passport
     {
-        $email = $request->headers->get(self::HEADER_NAME);
+        $email = $request->query->get(self::PARAM_NAME);
         
         if (empty($email)) {
-            throw new CustomUserMessageAuthenticationException('Test auth email header is empty');
+            throw new CustomUserMessageAuthenticationException('Test auth email parameter is empty');
         }
         
         // Only allow test users (puppeteer.test*)
         if (!str_starts_with($email, 'puppeteer.test')) {
-            throw new CustomUserMessageAuthenticationException('Only test users are allowed for header authentication');
+            throw new CustomUserMessageAuthenticationException('Only test users are allowed for parameter authentication');
         }
         
         return new SelfValidatingPassport(

@@ -1,0 +1,322 @@
+{% extends 'account/base.html.twig' %}
+
+{% block title %}Microsoft Teams IDs - {{ parent() }}{% endblock %}
+
+{% block account_content %}
+<div class="space-y-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Microsoft Teams IDs</h1>
+        <p class="mt-2 text-gray-600">Manage your Teams IDs for data integrations</p>
+    </div>
+
+    <!-- Teams ID Management -->
+    <div class="bg-white shadow rounded-lg p-6" id="teams-id-section">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Your Teams IDs</h2>
+                <p class="text-sm text-gray-600">Add multiple Teams IDs and assign them to your service integrations</p>
+            </div>
+            <button type="button" 
+                    onclick="openAddTeamsIdModal()"
+                    class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                <i class="fas fa-plus mr-2"></i>Add Teams ID
+            </button>
+        </div>
+        
+        <div id="teams-ids-list" class="space-y-3">
+            {% if teamsIds is empty %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-users text-4xl mb-3"></i>
+                    <p>No Teams IDs configured yet.</p>
+                    <p class="text-sm">Add your first Teams ID to get started with integrations.</p>
+                </div>
+            {% else %}
+                {% for teamsId in teamsIds %}
+                    <div class="border border-gray-200 rounded-lg p-4 {% if teamsId.isPrimary %}bg-blue-50 border-blue-300{% endif %}" data-teams-id="{{ teamsId.id }}">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="font-medium text-gray-900">{{ teamsId.displayName }}</h4>
+                                    {% if teamsId.isPrimary %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            Primary
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-sm text-gray-600">Teams ID: {{ teamsId.teamsId }}</p>
+                                <p class="text-xs text-gray-500">
+                                    Used in {{ teamsId.serviceIntegrations|length }} integration{{ teamsId.serviceIntegrations|length != 1 ? 's' : '' }}
+                                    • Added {{ teamsId.createdAt|date('Y-m-d') }}
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                {% if not teamsId.isPrimary %}
+                                    <button type="button"
+                                            onclick="setTeamsIdAsPrimary({{ teamsId.id }})"
+                                            class="text-blue-600 hover:text-blue-700"
+                                            title="Set as primary">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                {% endif %}
+                                <button type="button"
+                                        onclick="editTeamsId({{ teamsId.id }}, '{{ teamsId.displayName|e('js') }}')"
+                                        class="text-gray-600 hover:text-gray-700"
+                                        title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button"
+                                        onclick="deleteTeamsId({{ teamsId.id }})"
+                                        class="text-red-600 hover:text-red-700"
+                                        title="Delete"
+                                        {% if teamsId.serviceIntegrations|length > 0 %}disabled class="text-gray-400 cursor-not-allowed" title="Cannot delete - used by integrations"{% endif %}>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        Ask Workoflow Teams Bot about your Teams ID, prompt example: "What's my Teams ID"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">What are Teams IDs?</h3>
+        <p class="text-gray-600 mb-4">
+            Teams IDs are unique identifiers that connect your Microsoft Teams workspace to Workoflow. 
+            They enable incoming integrations from external services to send messages and notifications 
+            directly to your Teams channels.
+        </p>
+        <div class="flex items-center mt-4">
+            <a href="{{ path('account_settings') }}" class="text-purple-600 hover:text-purple-700 font-medium">
+                <i class="fas fa-arrow-right mr-2"></i>Go to Data Integrations
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Add Teams ID Modal -->
+<div id="addTeamsIdModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Add Teams ID</h3>
+            <form id="addTeamsIdForm">
+                <div class="mb-4">
+                    <label for="teamsId" class="block text-sm font-medium text-gray-700">Teams ID</label>
+                    <input type="text" 
+                           id="teamsId" 
+                           name="teamsId" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                           placeholder="Enter your Teams ID"
+                           required>
+                    <p class="mt-1 text-xs text-gray-500">Ask the Workoflow bot: "What's my Teams ID?"</p>
+                </div>
+                <div class="mb-4">
+                    <label for="displayName" class="block text-sm font-medium text-gray-700">Display Name</label>
+                    <input type="text" 
+                           id="displayName" 
+                           name="displayName" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                           placeholder="e.g., Main Account, Development Team"
+                           required>
+                </div>
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" 
+                               id="isPrimary" 
+                               name="isPrimary" 
+                               class="rounded border-gray-300 text-purple-600 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                        <span class="ml-2 text-sm text-gray-700">Set as primary Teams ID</span>
+                    </label>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="closeAddTeamsIdModal()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                        Add Teams ID
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Teams ID Modal -->
+<div id="editTeamsIdModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Edit Teams ID</h3>
+            <form id="editTeamsIdForm">
+                <input type="hidden" id="editTeamsIdId" name="id">
+                <div class="mb-4">
+                    <label for="editDisplayName" class="block text-sm font-medium text-gray-700">Display Name</label>
+                    <input type="text" 
+                           id="editDisplayName" 
+                           name="displayName" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                           required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="closeEditTeamsIdModal()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Teams ID Management Functions
+function openAddTeamsIdModal() {
+    document.getElementById('addTeamsIdModal').classList.remove('hidden');
+}
+
+function closeAddTeamsIdModal() {
+    document.getElementById('addTeamsIdModal').classList.add('hidden');
+    document.getElementById('addTeamsIdForm').reset();
+}
+
+function editTeamsId(id, displayName) {
+    document.getElementById('editTeamsIdId').value = id;
+    document.getElementById('editDisplayName').value = displayName;
+    document.getElementById('editTeamsIdModal').classList.remove('hidden');
+}
+
+function closeEditTeamsIdModal() {
+    document.getElementById('editTeamsIdModal').classList.add('hidden');
+    document.getElementById('editTeamsIdForm').reset();
+}
+
+// Add Teams ID
+document.getElementById('addTeamsIdForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    try {
+        const response = await fetch('{{ path('account_teams_ids_create') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                teamsId: formData.get('teamsId'),
+                displayName: formData.get('displayName'),
+                isPrimary: formData.get('isPrimary') === 'on'
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error adding Teams ID');
+        }
+    } catch (error) {
+        alert('Error adding Teams ID');
+    }
+});
+
+// Edit Teams ID
+document.getElementById('editTeamsIdForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const id = formData.get('id');
+    
+    try {
+        const response = await fetch('/account/teams-ids/' + id, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                displayName: formData.get('displayName')
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error updating Teams ID');
+        }
+    } catch (error) {
+        alert('Error updating Teams ID');
+    }
+});
+
+// Delete Teams ID
+async function deleteTeamsId(id) {
+    if (!confirm('Are you sure you want to delete this Teams ID?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/account/teams-ids/' + id, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error deleting Teams ID');
+        }
+    } catch (error) {
+        alert('Error deleting Teams ID');
+    }
+}
+
+// Set as primary
+async function setTeamsIdAsPrimary(id) {
+    try {
+        const response = await fetch('/account/teams-ids/' + id, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                isPrimary: true
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error setting primary Teams ID');
+        }
+    } catch (error) {
+        alert('Error setting primary Teams ID');
+    }
+}
+</script>
+{% endblock %}

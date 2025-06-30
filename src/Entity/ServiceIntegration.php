@@ -32,6 +32,16 @@ class ServiceIntegration
     #[ORM\Column(type: 'boolean')]
     private bool $isDefault = false;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $isEnabled = true;
+
+    #[ORM\ManyToOne(targetEntity: IncomingConnection::class, inversedBy: 'serviceIntegrations')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?IncomingConnection $incomingConnection = null;
+
+    #[ORM\OneToOne(mappedBy: 'serviceIntegration', targetEntity: CustomService::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private ?CustomService $customService = null;
+
     #[ORM\OneToMany(mappedBy: 'serviceIntegration', targetEntity: AccessToken::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $accessTokens;
 
@@ -156,6 +166,49 @@ class ServiceIntegration
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->isEnabled;
+    }
+
+    public function setIsEnabled(bool $isEnabled): static
+    {
+        $this->isEnabled = $isEnabled;
+        return $this;
+    }
+
+    public function getIncomingConnection(): ?IncomingConnection
+    {
+        return $this->incomingConnection;
+    }
+
+    public function setIncomingConnection(?IncomingConnection $incomingConnection): static
+    {
+        $this->incomingConnection = $incomingConnection;
+        return $this;
+    }
+
+    public function getCustomService(): ?CustomService
+    {
+        return $this->customService;
+    }
+
+    public function setCustomService(?CustomService $customService): static
+    {
+        // Set the owning side of the relation if necessary
+        if ($customService === null && $this->customService !== null) {
+            $this->customService->setServiceIntegration(null);
+        }
+
+        if ($customService !== null && $customService->getServiceIntegration() !== $this) {
+            $customService->setServiceIntegration($this);
+        }
+
+        $this->customService = $customService;
+
         return $this;
     }
 }

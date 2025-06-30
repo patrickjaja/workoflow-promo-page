@@ -1,0 +1,211 @@
+{% extends 'account/base.html.twig' %}
+
+{% block title %}Incoming Connections - {{ parent() }}{% endblock %}
+
+{% block account_content %}
+<div class="space-y-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Incoming Connections</h1>
+        <p class="mt-2 text-gray-600">Manage your incoming connections for data integrations</p>
+    </div>
+
+    <!-- Connection Management -->
+    <div class="bg-white shadow rounded-lg p-6" id="connections-section">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Your Connections</h2>
+                <p class="text-sm text-gray-600">Configure connections from external services to send messages to Workoflow</p>
+            </div>
+            <button type="button" 
+                    onclick="openAddConnectionModal()"
+                    class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                <i class="fas fa-plus mr-2"></i>Add Connection
+            </button>
+        </div>
+        
+        <div id="connections-list" class="space-y-3">
+            {% if connections is empty %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-plug text-4xl mb-3"></i>
+                    <p>No incoming connections configured yet.</p>
+                    <p class="text-sm">Add your first connection to get started with integrations.</p>
+                </div>
+            {% else %}
+                {% for connection in connections %}
+                    <div class="border border-gray-200 rounded-lg p-4" data-connection-id="{{ connection.id }}">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="font-medium text-gray-900">{{ connection.interfaceTypeLabel }}</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">ID: {{ connection.connectionId }}</p>
+                                <p class="text-xs text-gray-500">
+                                    Used in {{ connection.serviceIntegrations|length }} integration{{ connection.serviceIntegrations|length != 1 ? 's' : '' }}
+                                    • Added {{ connection.createdAt|date('Y-m-d') }}
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button type="button"
+                                        onclick="deleteConnection({{ connection.id }})"
+                                        class="text-red-600 hover:text-red-700"
+                                        title="Delete"
+                                        {% if connection.serviceIntegrations|length > 0 %}disabled class="text-gray-400 cursor-not-allowed" title="Cannot delete - used by integrations"{% endif %}>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        For Microsoft Teams: Ask the Workoflow bot "What's my Teams ID?"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">What are Incoming Connections?</h3>
+        <p class="text-gray-600 mb-4">
+            Incoming connections are unique identifiers that allow external services to send messages 
+            and notifications to Workoflow. These connections enable integrations from various platforms 
+            to communicate with your workspace.
+        </p>
+        <div class="flex items-center mt-4">
+            <a href="{{ path('account_settings') }}" class="text-purple-600 hover:text-purple-700 font-medium">
+                <i class="fas fa-arrow-right mr-2"></i>Go to Data Integrations
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Add Connection Modal -->
+<div id="addConnectionModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Add Incoming Connection</h3>
+            <form id="addConnectionForm">
+                <div class="mb-4">
+                    <label for="interfaceType" class="block text-sm font-medium text-gray-700">Interface Type</label>
+                    <select id="interfaceType" 
+                            name="interfaceType" 
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                            required>
+                        <option value="">Select interface type</option>
+                        <option value="ms_teams">Microsoft Teams</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="connectionId" class="block text-sm font-medium text-gray-700">Connection ID</label>
+                    <input type="text" 
+                           id="connectionId" 
+                           name="connectionId" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                           placeholder="Enter connection ID"
+                           required>
+                    <p class="mt-1 text-xs text-gray-500" id="connectionHint" style="display: none;">
+                        Ask the Workoflow bot: "What's my Teams ID?"
+                    </p>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="closeAddConnectionModal()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                        Add Connection
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Connection Management Functions
+function openAddConnectionModal() {
+    document.getElementById('addConnectionModal').classList.remove('hidden');
+}
+
+function closeAddConnectionModal() {
+    document.getElementById('addConnectionModal').classList.add('hidden');
+    document.getElementById('addConnectionForm').reset();
+    document.getElementById('connectionHint').style.display = 'none';
+}
+
+// Show hint when MS Teams is selected
+document.getElementById('interfaceType').addEventListener('change', function(e) {
+    const hint = document.getElementById('connectionHint');
+    if (e.target.value === 'ms_teams') {
+        hint.style.display = 'block';
+    } else {
+        hint.style.display = 'none';
+    }
+});
+
+// Add Connection
+document.getElementById('addConnectionForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    try {
+        const response = await fetch('{{ path('account_incoming_connections_create') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                interfaceType: formData.get('interfaceType'),
+                connectionId: formData.get('connectionId')
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Error adding connection');
+        }
+    } catch (error) {
+        alert('Error adding connection');
+    }
+});
+
+// Delete Connection
+async function deleteConnection(id) {
+    if (!confirm('Are you sure you want to delete this connection?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/account/incoming-connections/' + id, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Error deleting connection');
+        }
+    } catch (error) {
+        alert('Error deleting connection');
+    }
+}
+</script>
+{% endblock %}

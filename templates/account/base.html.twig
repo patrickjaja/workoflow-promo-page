@@ -46,6 +46,17 @@
                             </a>
                         {% endif %}
 
+                        <a href="{{ path('account_incoming_connections_index') }}" 
+                           class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                  {% if app.request.get('_route') == 'account_incoming_connections_index' %}
+                                      bg-purple-100 text-purple-700
+                                  {% else %}
+                                      text-gray-700 hover:bg-gray-100
+                                  {% endif %}">
+                            <i class="fas fa-plug w-5"></i>
+                            <span>Incoming Connections</span>
+                        </a>
+
                         <a href="{{ path('account_settings') }}" 
                            class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
                                   {% if app.request.get('_route') == 'account_settings' %}
@@ -53,8 +64,8 @@
                                   {% else %}
                                       text-gray-700 hover:bg-gray-100
                                   {% endif %}">
-                            <i class="fas fa-cog w-5"></i>
-                            <span>Service Integrations</span>
+                            <i class="fas fa-cogs w-5"></i>
+                            <span>Data Integrations</span>
                         </a>
 
                         <a href="{{ path('account_n8n') }}" 

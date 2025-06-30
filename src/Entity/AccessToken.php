@@ -11,13 +11,17 @@ use Doctrine\ORM\Mapping as ORM;
 class AccessToken
 {
     public const SERVICE_ATLASSIAN = 'atlassian';
-    public const SERVICE_GITLAB = 'gitlab';
-    public const SERVICE_GITHUB = 'github';
+    public const SERVICE_DECIDALO = 'decidalo';
+    public const SERVICE_CUSTOM_CONTENT_SEARCH = 'custom_content_search';
+    public const SERVICE_SERVICEMAP = 'servicemap';
+    public const SERVICE_CUSTOM = 'custom';
 
     public const AVAILABLE_SERVICES = [
         self::SERVICE_ATLASSIAN,
-        self::SERVICE_GITLAB,
-        self::SERVICE_GITHUB,
+        self::SERVICE_DECIDALO,
+        self::SERVICE_CUSTOM_CONTENT_SEARCH,
+        self::SERVICE_SERVICEMAP,
+        self::SERVICE_CUSTOM,
     ];
 
     #[ORM\Id]
@@ -49,6 +53,9 @@ class AccessToken
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $jiraApiToken = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $apiUrl = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -193,4 +200,17 @@ class AccessToken
         $this->updatedAt = new \DateTime();
         return $this;
     }
+
+    public function getApiUrl(): ?string
+    {
+        return $this->apiUrl;
+    }
+
+    public function setApiUrl(?string $apiUrl): static
+    {
+        $this->apiUrl = $apiUrl;
+        $this->updatedAt = new \DateTime();
+        return $this;
+    }
+
 }
