@@ -42,6 +42,12 @@ class IncomingConnection
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $msAppId = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $msAppPassword = null;
+
     public function __construct()
     {
         $this->serviceIntegrations = new ArrayCollection();
@@ -145,5 +151,27 @@ class IncomingConnection
     public function getInterfaceTypeLabel(): string
     {
         return self::AVAILABLE_INTERFACE_TYPES[$this->interfaceType] ?? 'Unknown';
+    }
+
+    public function getMsAppId(): ?string
+    {
+        return $this->msAppId;
+    }
+
+    public function setMsAppId(?string $msAppId): static
+    {
+        $this->msAppId = $msAppId;
+        return $this;
+    }
+
+    public function getMsAppPassword(): ?string
+    {
+        return $this->msAppPassword;
+    }
+
+    public function setMsAppPassword(?string $msAppPassword): static
+    {
+        $this->msAppPassword = $msAppPassword;
+        return $this;
     }
 }

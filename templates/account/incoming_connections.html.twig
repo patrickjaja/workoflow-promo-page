@@ -17,10 +17,72 @@
                 <p class="text-sm text-gray-600">Configure connections from external services to send messages to Workoflow</p>
             </div>
             <button type="button" 
-                    onclick="openAddConnectionModal()"
+                    onclick="toggleAddConnectionForm()"
                     class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
                 <i class="fas fa-plus mr-2"></i>Add Connection
             </button>
+        </div>
+
+        <!-- New Connection Form (Hidden by default) -->
+        <div id="new-connection-form" class="hidden mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 class="text-md font-medium text-gray-900 mb-3">New Incoming Connection</h4>
+            <form id="addConnectionForm" class="space-y-3">
+                <div>
+                    <label for="interfaceType" class="block text-sm font-medium text-gray-700">Interface Type</label>
+                    <select id="interfaceType" 
+                            name="interfaceType" 
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                            required>
+                        <option value="">Select interface type</option>
+                        <option value="ms_teams">Microsoft Teams</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="connectionId" class="block text-sm font-medium text-gray-700">Connection ID</label>
+                    <input type="text" 
+                           id="connectionId" 
+                           name="connectionId" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                           placeholder="Enter connection ID"
+                           required>
+                    <p class="mt-1 text-xs text-gray-500" id="connectionHint" style="display: none;">
+                        Ask the Workoflow bot: "What's my Teams ID?"
+                    </p>
+                </div>
+                
+                <!-- MS Teams specific fields -->
+                <div id="msTeamsFields" style="display: none;" class="space-y-3">
+                    <div>
+                        <label for="msAppId" class="block text-sm font-medium text-gray-700">Microsoft App ID</label>
+                        <input type="text" 
+                               id="msAppId" 
+                               name="msAppId" 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                               placeholder="Enter Microsoft App ID">
+                        <p class="mt-1 text-xs text-gray-500">Required for Microsoft Teams integration and authentication</p>
+                    </div>
+                    <div>
+                        <label for="msAppPassword" class="block text-sm font-medium text-gray-700">Microsoft App Password</label>
+                        <input type="password" 
+                               id="msAppPassword" 
+                               name="msAppPassword" 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                               placeholder="Enter Microsoft App Password">
+                        <p class="mt-1 text-xs text-gray-500">Client secret for your Microsoft Teams app</p>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="toggleAddConnectionForm()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                        Add Connection
+                    </button>
+                </div>
+            </form>
         </div>
         
         <div id="connections-list" class="space-y-3">
@@ -88,69 +150,42 @@
     </div>
 </div>
 
-<!-- Add Connection Modal -->
-<div id="addConnectionModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Add Incoming Connection</h3>
-            <form id="addConnectionForm">
-                <div class="mb-4">
-                    <label for="interfaceType" class="block text-sm font-medium text-gray-700">Interface Type</label>
-                    <select id="interfaceType" 
-                            name="interfaceType" 
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
-                            required>
-                        <option value="">Select interface type</option>
-                        <option value="ms_teams">Microsoft Teams</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="connectionId" class="block text-sm font-medium text-gray-700">Connection ID</label>
-                    <input type="text" 
-                           id="connectionId" 
-                           name="connectionId" 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
-                           placeholder="Enter connection ID"
-                           required>
-                    <p class="mt-1 text-xs text-gray-500" id="connectionHint" style="display: none;">
-                        Ask the Workoflow bot: "What's my Teams ID?"
-                    </p>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" 
-                            onclick="closeAddConnectionModal()"
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-                        Cancel
-                    </button>
-                    <button type="submit" 
-                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
-                        Add Connection
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
 // Connection Management Functions
-function openAddConnectionModal() {
-    document.getElementById('addConnectionModal').classList.remove('hidden');
+function toggleAddConnectionForm() {
+    const form = document.getElementById('new-connection-form');
+    form.classList.toggle('hidden');
+    
+    // Reset form when closing
+    if (form.classList.contains('hidden')) {
+        document.getElementById('addConnectionForm').reset();
+        document.getElementById('connectionHint').style.display = 'none';
+        document.getElementById('msTeamsFields').style.display = 'none';
+        document.getElementById('msAppId').removeAttribute('required');
+        document.getElementById('msAppPassword').removeAttribute('required');
+    }
 }
 
-function closeAddConnectionModal() {
-    document.getElementById('addConnectionModal').classList.add('hidden');
-    document.getElementById('addConnectionForm').reset();
-    document.getElementById('connectionHint').style.display = 'none';
-}
-
-// Show hint when MS Teams is selected
+// Show hint and MS Teams fields when MS Teams is selected
 document.getElementById('interfaceType').addEventListener('change', function(e) {
     const hint = document.getElementById('connectionHint');
+    const msTeamsFields = document.getElementById('msTeamsFields');
+    const msAppId = document.getElementById('msAppId');
+    const msAppPassword = document.getElementById('msAppPassword');
+    
     if (e.target.value === 'ms_teams') {
         hint.style.display = 'block';
+        msTeamsFields.style.display = 'block';
+        // Make MS Teams fields required
+        msAppId.setAttribute('required', 'required');
+        msAppPassword.setAttribute('required', 'required');
     } else {
         hint.style.display = 'none';
+        msTeamsFields.style.display = 'none';
+        // Remove required attribute
+        msAppId.removeAttribute('required');
+        msAppPassword.removeAttribute('required');
     }
 });
 
@@ -168,12 +203,16 @@ document.getElementById('addConnectionForm').addEventListener('submit', async (e
             },
             body: JSON.stringify({
                 interfaceType: formData.get('interfaceType'),
-                connectionId: formData.get('connectionId')
+                connectionId: formData.get('connectionId'),
+                msAppId: formData.get('msAppId'),
+                msAppPassword: formData.get('msAppPassword')
             })
         });
         
         const data = await response.json();
         if (data.success) {
+            // Close the form and reload the page
+            toggleAddConnectionForm();
             window.location.reload();
         } else {
             alert(data.error || 'Error adding connection');

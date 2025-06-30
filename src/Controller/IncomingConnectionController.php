@@ -70,6 +70,8 @@ class IncomingConnectionController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $interfaceType = $data['interfaceType'] ?? '';
         $connectionId = $data['connectionId'] ?? '';
+        $msAppId = $data['msAppId'] ?? null;
+        $msAppPassword = $data['msAppPassword'] ?? null;
         
         if (empty($interfaceType) || empty($connectionId)) {
             return $this->json(['error' => 'Interface type and connection ID are required'], Response::HTTP_BAD_REQUEST);
@@ -77,6 +79,13 @@ class IncomingConnectionController extends AbstractController
         
         if (!array_key_exists($interfaceType, IncomingConnection::AVAILABLE_INTERFACE_TYPES)) {
             return $this->json(['error' => 'Invalid interface type'], Response::HTTP_BAD_REQUEST);
+        }
+        
+        // Validate MS Teams specific fields
+        if ($interfaceType === IncomingConnection::INTERFACE_TYPE_MS_TEAMS) {
+            if (empty($msAppId) || empty($msAppPassword)) {
+                return $this->json(['error' => 'Microsoft App ID and Password are required for MS Teams connections'], Response::HTTP_BAD_REQUEST);
+            }
         }
         
         // Check if connection ID already exists for this user
@@ -94,6 +103,12 @@ class IncomingConnectionController extends AbstractController
         $connection->setUser($user);
         $connection->setInterfaceType($interfaceType);
         $connection->setConnectionId($connectionId);
+        
+        // Set MS Teams specific fields
+        if ($interfaceType === IncomingConnection::INTERFACE_TYPE_MS_TEAMS) {
+            $connection->setMsAppId($msAppId);
+            $connection->setMsAppPassword($msAppPassword);
+        }
         
         $this->entityManager->persist($connection);
         $this->entityManager->flush();
